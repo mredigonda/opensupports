@@ -49,7 +49,7 @@ Just as there is the `gulp dev` task for development, there is also a `gulp prod
 2. [Install PHP 5.6](https://www.dev-metal.com/install-setup-php-5-6-ubuntu-14-04-lts/)
 3. [Create MySQL Database](#markdown-header-create-mysql-database)
 4. [Install composer](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-composer-on-ubuntu-14-04)
-5. Go to `cd os4-react/api`
+5. Go to `cd os4-react/server`
 6. Run `composer install`
 7. Run the server with `php -S localhost:8080`
 
