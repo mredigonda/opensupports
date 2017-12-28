@@ -10,11 +10,11 @@ class TextEditor extends React.Component {
         onChange: React.PropTypes.func,
         value: React.PropTypes.object
     };
-    
+
     static createEmpty() {
         return EditorState.createEmpty()
     }
-    
+
     static getEditorStateFromHTML(htmlString) {
         const blocksFromHTML = convertFromHTML(htmlString);
         const state = ContentState.createFromBlockArray(
@@ -28,7 +28,7 @@ class TextEditor extends React.Component {
     static getHTMLFromEditorState(editorState) {
         return stateToHTML(editorState.getCurrentContent());
     }
-    
+
     static isEditorState(editorState) {
         return editorState && editorState.getCurrentContent;
     }
@@ -72,7 +72,7 @@ class TextEditor extends React.Component {
 
     getToolbarOptions() {
         return {
-            options: ['inline', 'blockType', 'list', 'link', 'image'],
+            options: ['inline', 'blockType', 'list', 'link', 'image', 'textAlign'],
             inline: {
                 inDropdown: false,
                 options: ['bold', 'italic', 'underline', 'strikethrough', 'monospace']
