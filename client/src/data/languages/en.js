@@ -193,6 +193,7 @@ export default {
     'NEVER': 'Never',
     'HIMSELF': 'himself',
     'ADD_USER': 'Add user',
+    'INVITE_USER': 'Invite user',
     'UPLOAD_FILE': 'Upload file',
     'PRIVATE': 'Private',
     'ENABLE_USER': 'Enable User',
@@ -322,6 +323,7 @@ export default {
     'REGISTRATION_ENABLED': 'Registration has been enabled',
     'ADD_API_KEY_DESCRIPTION': 'Insert the name and a registration api key will be generated.',
     'SIGN_UP_VIEW_DESCRIPTION': 'Here you can create an account for our support center. It is required to send tickets and see documentation.',
+    'INVITE_USER_VIEW_DESCRIPTION': 'Here you can invite someone to create a customer account for our support center. He will only need to provide his password.',
     'EDIT_PROFILE_VIEW_DESCRIPTION': 'Here you can edit your user by changing your email or your password.',
     'ENABLE_USER_SYSTEM_DESCRIPTION': 'Enable/disable the use of an user system. If you disable it, all users will be deleted but the tickets will be kept. If you enable it, the users of existent tickets will be created.',
     'CSV_DESCRIPTION': 'The CSV file must have 3 columns: email, password, name. There is no limit in row count. It will be created one user per row in the file.',
@@ -372,6 +374,7 @@ export default {
 
     //MESSAGES
     'SIGNUP_SUCCESS': 'You have registered successfully in our support system.',
+    'INVITE_USER_SUCCESS': 'You have invited a user successfully in our support system.',
     'TICKET_SENT': 'Ticket has been created successfully.',
     'VALID_RECOVER': 'Password recovered successfully',
     'EMAIL_EXISTS': 'Email already exists',
