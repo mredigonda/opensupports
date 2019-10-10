@@ -4,26 +4,24 @@ use Respect\Validation\Validator as DataValidator;
 DataValidator::with('CustomValidations', true);
 
 /**
- * @api {post} /user/signup Sign up
- * @apiVersion 4.4.0
+ * @api {post} /user/invite Invite user
+ * @apiVersion 4.5.0
  *
- * @apiName Sign up
+ * @apiName Invite user
  *
  * @apiGroup User
  *
- * @apiDescription This path signs up an user on the system.
+ * @apiDescription This path allows a staff member to invite a user on the system.
  *
  * @apiPermission any
  *
  * @apiParam {String} name The name of the new user.
  * @apiParam {String} email The email of the new user.
- * @apiParam {String} password The password of the new user.
  * @apiParam {String} apiKey APIKey to sign up a user if the registration system is disabled.
  * @apiParam {String} customfield_ Custom field values for this user.
  *
  * @apiUse INVALID_NAME
  * @apiUse INVALID_EMAIL
- * @apiUse INVALID_PASSWORD
  * @apiUse INVALID_CAPTCHA
  * @apiUse USER_SYSTEM_DISABLED
  * @apiUse USER_EXISTS
@@ -37,19 +35,14 @@ DataValidator::with('CustomValidations', true);
  *
  */
 
-class SignUpController extends Controller {
-    const PATH = '/signup';
+class InviteController extends Controller {
+    const PATH = '/invite';
     const METHOD = 'POST';
 
     private $userEmail;
     private $userName;
-    private $userPassword;
     private $verificationToken;
-    private $csvImported;
-
-    public function __construct($csvImported = false) {
-        $this->csvImported = $csvImported;
-    }
+    private $invitationToken;
 
     public function validations() {
         $validations = [
@@ -62,20 +55,14 @@ class SignUpController extends Controller {
                 'email' => [
                     'validation' => DataValidator::email(),
                     'error' => ERRORS::INVALID_EMAIL
-                ],
-                'password' => [
-                    'validation' => DataValidator::length(5, 200),
-                    'error' => ERRORS::INVALID_PASSWORD
                 ]
             ]
         ];
 
-        if(!$this->csvImported) {
-            $validations['requestData']['captcha'] = [
-                'validation' => DataValidator::captcha(),
-                'error' => ERRORS::INVALID_CAPTCHA
-            ];
-        }
+        $validations['requestData']['captcha'] = [
+            'validation' => DataValidator::captcha(),
+            'error' => ERRORS::INVALID_CAPTCHA
+        ];
 
         return $validations;
     }
@@ -99,14 +86,14 @@ class SignUpController extends Controller {
             throw new RequestException(ERRORS::ALREADY_BANNED);
         }
 
-        if (!Setting::getSetting('registration')->value && $apiKey->isNull() && !Controller::isStaffLogged(2) && !$this->csvImported) {
+        if (!Setting::getSetting('registration')->value && $apiKey->isNull() && !Controller::isStaffLogged(2)) {
             throw new RequestException(ERRORS::NO_PERMISSION);
         }
 
         $userId = $this->createNewUserAndRetrieveId();
 
         if(MailSender::getInstance()->isConnected()) {
-            $this->sendRegistrationMail();
+            $this->sendInvitationMail();
         }
 
         Response::respondSuccess([
@@ -120,7 +107,6 @@ class SignUpController extends Controller {
     public function storeRequestData() {
         $this->userName = Controller::request('name');
         $this->userEmail = Controller::request('email');
-        $this->userPassword = Controller::request('password');
         $this->verificationToken = Hashing::generateRandomToken();
     }
 
@@ -134,13 +120,14 @@ class SignUpController extends Controller {
             'email' => $this->userEmail,
             'password' => Hashing::hashPassword($this->userPassword),
             'verificationToken' => (MailSender::getInstance()->isConnected()) ? $this->verificationToken : null,
+            'invitationToken' => (Mail)
             'xownCustomfieldvalueList' => $this->getCustomFieldValues()
         ]);
 
         return $userInstance->store();
     }
 
-    public function sendRegistrationMail() {
+    public function sendInvitationMail() {
         $mailSender = MailSender::getInstance();
 
         $mailSender->setTemplate(MailTemplate::USER_SIGNUP, [
