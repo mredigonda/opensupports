@@ -4,7 +4,7 @@ describe 'Custom fields' do
 
     describe '/system/add-custom-field' do
 
-        it 'should fail if the name is to short ' do
+        it 'should fail if the name is too short ' do
             result = request('/system/add-custom-field', {
                 csrf_userid: $csrf_userid,
                 csrf_token: $csrf_token,
@@ -19,7 +19,7 @@ describe 'Custom fields' do
 
         end
 
-        it 'should fail if the name is to long' do
+        it 'should fail if the name is too long' do
             long_text = ''
             101.times {long_text << 'A'}
 
@@ -36,7 +36,7 @@ describe 'Custom fields' do
             (result['message']).should.equal('INVALID_NAME')
         end
 
-        it 'should fail if the type is not one of text or select'do
+        it 'should fail if the type is not one of text or select' do
             result = request('/system/add-custom-field', {
                 csrf_userid: $csrf_userid,
                 csrf_token: $csrf_token,
@@ -68,6 +68,20 @@ describe 'Custom fields' do
                 type: 'select',
                 description: 'custom field description',
                 options: 'json'
+            })
+
+            (result['status']).should.equal('fail')
+            (result['message']).should.equal('INVALID_CUSTOM_FIELD_OPTIONS')
+        end
+
+        it 'should fail if there are no options for a "select"-type custom field' do
+            result = request('/system/add-custom-field', {
+                csrf_userid: $csrf_userid,
+                csrf_token: $csrf_token,
+                name: 'Favorite Radio Station',
+                type: 'select',
+                description: 'That radio station you want so much',
+                options: '[]'
             })
 
             (result['status']).should.equal('fail')
@@ -118,7 +132,7 @@ describe 'Custom fields' do
 
     describe '/system/get-custom-fields' do
 
-        it 'should success and shows all custom fields' do
+        it 'should succeed and show all custom fields' do
             Scripts.createTextCustomField('mocktextfield1','description number 1')
             Scripts.createTextCustomField('mocktextfield2','description number 2')
             Scripts.createTextCustomField('mocktextfield3',nil)
