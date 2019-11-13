@@ -32,8 +32,6 @@ class AddCustomFieldController extends Controller {
     const PATH = '/add-custom-field';
     const METHOD = 'POST';
 
-    private $type;
-
     public function validations() {
         return [
             'permission' => 'staff_2',
@@ -51,7 +49,7 @@ class AddCustomFieldController extends Controller {
                 ],
                 'options' => [
                     'validation' => DataValidator::oneOf(
-                        DataValidator::json(),
+                        DataValidator::customFieldOptions(),
                         DataValidator::nullType()
                     ),
                     'error' => ERRORS::INVALID_CUSTOM_FIELD_OPTIONS
@@ -62,21 +60,27 @@ class AddCustomFieldController extends Controller {
 
     public function handler() {
         $name = Controller::request('name');
-        $this->type = Controller::request('type');
+        $type = Controller::request('type');
         $description = Controller::request('description');
         $options = Controller::request('options');
-        $optionsList = $this->getOptionsList($options);
 
         if(!Customfield::getDataStore($name, 'name')->isNull())
             throw new Exception(ERRORS::CUSTOM_FIELD_ALREADY_EXISTS);
 
-        if($this->type === 'select' && $optionsList->isEmpty())
-            throw new Exception(ERRORS::INVALID_CUSTOM_FIELD_OPTIONS);
+        $optionsList = $this->getOptionsList($options);
+
+        if($type === 'select') {
+            if($optionsList->isEmpty())
+                throw new Exception(ERRORS::INVALID_CUSTOM_FIELD_OPTIONS);
+        } else {
+            if(!$optionsList->isEmpty())
+                throw new Exception(ERRORS::INVALID_CUSTOM_FIELD_OPTIONS);
+        }
 
         $customField = new Customfield();
         $customField->setProperties([
             'name' => $name,
-            'type' => $this->type,
+            'type' => $type,
             'description' => $description,
             'ownCustomfieldoptionList' => $optionsList
         ]);
@@ -90,18 +94,9 @@ class AddCustomFieldController extends Controller {
         $options = new DataStoreList();
         if(!$optionsJSON) return $options;
 
-        if($this->type !== 'select')
-            throw new Exception(ERRORS::INVALID_CUSTOM_FIELD_OPTIONS);
-
         $optionsNames = json_decode($optionsJSON);
 
-        if(!is_array($optionsNames))
-            throw new Exception(ERRORS::INVALID_CUSTOM_FIELD_OPTIONS);
-
         foreach($optionsNames as $optionName) {
-            if(!is_string($optionsName))
-                throw new Exception(ERRORS::INVALID_CUSTOM_FIELD_OPTIONS);
-
             $option = new Customfieldoption();
             $option->setProperties([
                 'name' => $optionName,
