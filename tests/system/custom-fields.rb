@@ -60,7 +60,7 @@ describe 'Custom fields' do
             (result['message']).should.equal('INVALID_CUSTOM_FIELD_TYPE')
         end
 
-        it 'should fail if the option is invalid' do
+        it 'should fail if the option has invalid format' do
             result = request('/system/add-custom-field', {
                 csrf_userid: $csrf_userid,
                 csrf_token: $csrf_token,
@@ -68,6 +68,30 @@ describe 'Custom fields' do
                 type: 'select',
                 description: 'custom field description',
                 options: 'json'
+            })
+
+            (result['status']).should.equal('fail')
+            (result['message']).should.equal('INVALID_CUSTOM_FIELD_OPTIONS')
+
+            result = request('/system/add-custom-field', {
+                csrf_userid: $csrf_userid,
+                csrf_token: $csrf_token,
+                name: 'name of custom field',
+                type: 'select',
+                description: 'custom field description',
+                options: '[json]'
+            })
+
+            (result['status']).should.equal('fail')
+            (result['message']).should.equal('INVALID_CUSTOM_FIELD_OPTIONS')
+
+            result = request('/system/add-custom-field', {
+                csrf_userid: $csrf_userid,
+                csrf_token: $csrf_token,
+                name: 'name of custom field',
+                type: 'select',
+                description: 'custom field description',
+                options: '[["json"]]'
             })
 
             (result['status']).should.equal('fail')
@@ -82,6 +106,41 @@ describe 'Custom fields' do
                 type: 'select',
                 description: 'That radio station you want so much',
                 options: '[]'
+            })
+
+            (result['status']).should.equal('fail')
+            (result['message']).should.equal('INVALID_CUSTOM_FIELD_OPTIONS')
+        end
+
+        it 'should fail if any of the options is too long' do
+            long_text = ''
+            51.times {long_text << 'A'}
+
+            result = request('/system/add-custom-field', {
+                csrf_userid: $csrf_userid,
+                csrf_token: $csrf_token,
+                name: 'Favorite Radio Station',
+                type: 'select',
+                description: 'That radio station you want so much',
+                options: '["' + long_text + '"]'
+            })
+
+            (result['status']).should.equal('fail')
+            (result['message']).should.equal('INVALID_CUSTOM_FIELD_OPTIONS')
+        end
+
+        it 'should fail if there are many options' do
+            options = '["A"'
+            20.times {options << ',"A"'}
+            options << ']'
+
+            result = request('/system/add-custom-field', {
+                csrf_userid: $csrf_userid,
+                csrf_token: $csrf_token,
+                name: 'Favorite Radio Station',
+                type: 'select',
+                description: 'That radio station you want so much',
+                options: options
             })
 
             (result['status']).should.equal('fail')

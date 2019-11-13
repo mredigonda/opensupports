@@ -16,7 +16,7 @@ class CustomFieldOptions extends AbstractRule {
             return false;
 
         foreach($optionsNames as $optionName) {
-            if(!is_string($optionName) || sizeof($optionName) > 50)
+            if(!is_string($optionName) || strlen($optionName) > 50)
                 return false;
         }
 
