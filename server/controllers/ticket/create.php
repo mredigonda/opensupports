@@ -66,7 +66,7 @@ class CreateController extends Controller {
                     'error' => ERRORS::INVALID_DEPARTMENT
                 ],
                 'language' => [
-                    'validation' => DataValidator::validLanguage(),
+                    'validation' => DataValidator::in(Language::getSupportedLanguages()),
                     'error' => ERRORS::INVALID_LANGUAGE
                 ]
             ]
